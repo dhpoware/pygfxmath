@@ -19,7 +19,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-"""Test cases for the pymathlib module."""
+"""Test suite for the pygfxmath module."""
 
 import math
 
