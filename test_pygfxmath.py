@@ -23,7 +23,7 @@
 
 import math
 
-from pygfxmath import close_enough, Vector2, Vector3, Vector4, Matrix3, Matrix4, Quaternion, BoundingBox, BoundingSphere, Plane
+from pygfxmath import close_enough, Vector2, Vector3, Vector4, Matrix3, Matrix4, Quaternion, BoundingBox, BoundingSphere, Plane, Ray
 
 class TestVector2(object):
     """pytest class to unit test the pygfxmath.Vector2 class."""
@@ -923,3 +923,103 @@ class TestPlane(object):
         result = plane.has_collided_with_box(box)
         expected = True
         assert expected == result, f"test_has_collided_with_box() case 2 failed, expected:{expected} == result:{result}"
+
+
+class TestRay(object):
+    """pytest class to unit test the pygfxmath.Ray class."""
+
+    def test_has_intersected_box(self):
+        box = BoundingBox(Vector3(-10.0, -10.0, -10.0), Vector3(10.0, 10.0, 10.0))
+        origin = Vector3(0.0, 0.0, 0.0)
+
+        # Case 1: Ray hits a bounding box that the ray is inside of.
+        ray = Ray(origin, Vector3(0.0, 0.0, 1.0))
+        result = ray.has_intersected_box(box)
+        expected = True
+        assert expected == result, f"test_has_intersected_box() case 1 failed, expected:{expected} == result:{result}"
+
+        # Case 2: Ray hits a bounding box.
+        ray = Ray(Vector3(0.0, 0.0, 100.0), Vector3(0.0, 0.0, -1.0))
+        result = ray.has_intersected_box(box)
+        expected = True
+        assert expected == result, f"test_has_intersected_box() case 2 failed, expected:{expected} == result:{result}"
+
+        # Case 3: Ray misses a bounding box.
+        ray = Ray(Vector3(0.0, 0.0, 100.0), Vector3(0.0, 0.0, 1.0))
+        result = ray.has_intersected_box(box)
+        expected = False
+        assert expected == result, f"test_has_intersected_box() case 3 failed, expected:{expected} == result:{result}"
+
+    def test_has_intersected_sphere(self):
+        origin = Vector3(0.0, 0.0, 0.0)
+        sphere = BoundingSphere(origin, 10.0)
+
+        # Case 1: Ray hits a bounding sphere that the ray is inside of.
+        ray = Ray(origin, Vector3(0.0, 0.0, 1.0))
+        result = ray.has_intersected_sphere(sphere)
+        expected = True
+        assert expected == result, f"test_has_intersected_sphere() case 1 failed, expected:{expected} == result:{result}"
+
+        # Case 2: Ray hits a bounding sphere.
+        ray = Ray(Vector3(0.0, 0.0, 100.0), Vector3(0.0, 0.0, -1.0))
+        result = ray.has_intersected_sphere(sphere)
+        expected = True
+        assert expected == result, f"test_has_intersected_sphere() case 2 failed, expected:{expected} == result:{result}"
+
+        # Case 3: Ray misses a bounding sphere.
+        ray = Ray(Vector3(0.0, 0.0, 100.0), Vector3(0.0, 0.0, 1.0))
+        result = ray.has_intersected_sphere(sphere)
+        expected = False
+        assert expected == result, f"test_has_intersected_sphere() case 3 failed, expected:{expected} == result:{result}"
+
+    def test_has_intersected_plane(self):
+        xz_plane = Plane.create_from_point_normal(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+
+        # Case 1: Ray intersects a plane.
+        ray = Ray(Vector3(0.0, 10.0, 0.0), Vector3(0.0, -1.0, 0.0))
+        result = ray.has_intersected_plane(xz_plane)
+        expected = True
+        assert expected == result, f"test_has_intersected_plane() case 1 failed, expected:{expected} == result:{result}"
+
+        # Case 2: Ray misses a plane.
+        ray = Ray(Vector3(0.0, 10.0, 0.0), Vector3(0.0, 1.0, 0.0))
+        result = ray.has_intersected_plane(xz_plane)
+        expected = False
+        assert expected == result, f"test_has_intersected_plane() case 2 failed, expected:{expected} == result:{result}"
+
+        # Case 3: Line segment intersects a plane.
+        pt1 = Vector3(0.0, -10.0, 0.0)
+        pt2 = Vector3(0.0, 10.0, 0.0)
+        ray = Ray(pt1, pt2 - pt1)
+        result = ray.has_intersected_plane(xz_plane)
+        expected = True
+        assert expected == result, f"test_has_intersected_plane() case 3 failed, expected:{expected} == result:{result}"
+
+        # Case 4: Line segment misses a plane.
+        pt1 = Vector3(0.0, 10.0, 0.0)
+        pt2 = Vector3(0.0, 20.0, 0.0)
+        ray = Ray(pt1, pt2 - pt1)
+        result = ray.has_intersected_plane(xz_plane)
+        expected = False
+        assert expected == result, f"test_has_intersected_plane() case 4 failed, expected:{expected} == result:{result}"
+
+    def test_get_intersection_with_plane(self):
+        xz_plane = Plane.create_from_point_normal(Vector3(0.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+
+        # Case 1: Ray lies in the plane.
+        pt1 = Vector3(0.0, 0.0, 0.0)
+        pt2 = Vector3(1.0, 0.0, 1.0)
+        ray = Ray(pt1, pt2 - pt1)
+        has_interesected, t, intersection = ray.get_intersection_with_plane(xz_plane)
+        result = has_interesected and close_enough(t, 0.0)
+        expected = True
+        assert expected == result, f"test_get_intersection_with_plane() case 1 failed, expected:{expected} == result:{result}"
+        
+        # Case 2: Ray intersects the plane.
+        pt1 = Vector3(0.0, -1.0, 0.0)
+        pt2 = Vector3(0.0, 1.0, 0.0)
+        ray = Ray(pt1, pt2 - pt1)
+        has_interesected, t, intersection = ray.get_intersection_with_plane(xz_plane)
+        result = has_interesected and t > 0.0
+        expected = True
+        assert expected == result, f"test_get_intersection_with_plane() case 2 failed, expected:{expected} == result:{result}"

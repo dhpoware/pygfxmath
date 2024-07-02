@@ -1904,3 +1904,283 @@ class Plane(object):
         result = Plane()
         result.from_points(point1, point2, point3)
         return result
+
+
+class Ray(object):
+    """
+    A ray class used for collision detection.
+    """
+    def __init__(self, origin=Vector3(0.0, 0.0, 0.0), direction=Vector3(0.0, 0.0, 0.0)):
+        if not isinstance(origin, Vector3) or not isinstance(direction, Vector3):
+            raise NotImplementedError
+
+        self.origin = origin
+        self.direction = direction
+
+    def __str__(self):
+        return f"[origin={self.origin}, direction={self.direction}]"
+
+    def has_intersected_box(self, box):
+        """
+        Determine whether the ray has intersected the bounding box.
+
+        The algorithm used if from:
+            Jeffrey Mahovsky and Brian Wyvill, "Fast Ray-Axis Aligned Bounding Box
+            Overlap Tests with Plücker Coordinates", Journal of Graphics Tools, 9(1):35-46.
+        """
+        if not isinstance(box, BoundingBox):
+            raise NotImplementedError
+
+        if self.direction.x < 0.0:
+            if self.direction.y < 0.0:
+                if self.direction.z < 0.0:
+                    # case MMM: side(R,HD) < 0 or side(R,FB) > 0 or side(R,EF) > 0 or side(R,DC) < 0 or side(R,CB) < 0 or side(R,HE) > 0 to miss
+                    if (self.origin.x < box.min.x) or (self.origin.y < box.min.y) or (self.origin.z < box.min.z):
+                        return False
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * ya - self.direction.y * xb < 0) \
+                                or (self.direction.x * yb - self.direction.y * xa > 0) \
+                                or (self.direction.x * zb - self.direction.z * xa > 0) \
+                                or (self.direction.x * za - self.direction.z * xb < 0) \
+                                or (self.direction.y * za - self.direction.z * yb < 0) \
+                                or (self.direction.y * zb - self.direction.z * ya > 0):
+                            return False
+                        else:
+                            return True
+                else:
+                    # case MMP: side(R,HD) < 0 or side(R,FB) > 0 or side(R,HG) > 0 or side(R,AB) < 0 or side(R,DA) < 0 or side(R,GF) > 0 to miss
+                    if (self.origin.x < box.min.x) or (self.origin.y < box.min.y) or (self.origin.z > box.max.z):
+                        return false;
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * ya - self.direction.y * xb < 0.0) \
+                                or (self.direction.x * yb - self.direction.y * xa > 0.0) \
+                                or (self.direction.x * zb - self.direction.z * xb > 0.0) \
+                                or (self.direction.x * za - self.direction.z * xa < 0.0) \
+                                or (self.direction.y * za - self.direction.z * ya < 0.0) \
+                                or (self.direction.y * zb - self.direction.z * yb > 0.0):
+                            return False
+                        else:
+                            return True
+            else:
+                if self.direction.z < 0.0:
+                    # case MPM: side(R,EA) < 0 or side(R,GC) > 0 or side(R,EF) > 0 or side(R,DC) < 0 or side(R,GF) < 0 or side(R,DA) > 0 to miss
+                    if (self.origin.x < box.min.x) or (self.origin.y > box.max.y) or (self.origin.z < box.min.z):
+                        return False
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * ya - self.direction.y * xa < 0.0) \
+                                or (self.direction.x * yb - self.direction.y * xb > 0.0) \
+                                or (self.direction.x * zb - self.direction.z * xa > 0.0) \
+                                or (self.direction.x * za - self.direction.z * xb < 0.0) \
+                                or (self.direction.y * zb - self.direction.z * yb < 0.0) \
+                                or (self.direction.y * za - self.direction.z * ya > 0.0):
+                            return False
+                        else:
+                            return True
+                else:
+                    # case MPP: side(R,EA) < 0 or side(R,GC) > 0 or side(R,HG) > 0 or side(R,AB) < 0 or side(R,HE) < 0 or side(R,CB) > 0 to miss
+                    if (self.origin.x < box.min.x) or (self.origin.y > box.max.y) or (self.origin.z > box.max.z):
+                        return False
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * ya - self.direction.y * xa < 0.0) \
+                                or (self.direction.x * yb - self.direction.y * xb > 0.0) \
+                                or (self.direction.x * zb - self.direction.z * xb > 0.0) \
+                                or (self.direction.x * za - self.direction.z * xa < 0.0) \
+                                or (self.direction.y * zb - self.direction.z * ya < 0.0) \
+                                or (self.direction.y * za - self.direction.z * yb > 0.0):
+                            return False
+                        else:
+                            return True
+        else:
+            if self.direction.y < 0.0:
+                if self.direction.z < 0.0:
+                    # case PMM: side(R,GC) < 0 or side(R,EA) > 0 or side(R,AB) > 0 or side(R,HG) < 0 or side(R,CB) < 0 or side(R,HE) > 0 to miss
+                    if (self.origin.x > box.max.x) or (self.origin.y < box.min.y) or (self.origin.z < box.min.z):
+                        return False
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * yb - self.direction.y * xb < 0.0) \
+                                or (self.direction.x * ya - self.direction.y * xa > 0.0) \
+                                or (self.direction.x * za - self.direction.z * xa > 0.0) \
+                                or (self.direction.x * zb - self.direction.z * xb < 0.0) \
+                                or (self.direction.y * za - self.direction.z * yb < 0.0) \
+                                or (self.direction.y * zb - self.direction.z * ya > 0.0):
+                            return False
+                        else:
+                            return True
+                else:
+                    # case PMP: side(R,GC) < 0 or side(R,EA) > 0 or side(R,DC) > 0 or side(R,EF) < 0 or side(R,DA) < 0 or side(R,GF) > 0 to miss
+                    if (self.origin.x > box.max.x) or (self.origin.y < box.min.y) or (self.origin.z > box.max.z):
+                        return False
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * yb - self.direction.y * xb < 0.0) \
+                                or (self.direction.x * ya - self.direction.y * xa > 0.0) \
+                                or (self.direction.x * za - self.direction.z * xb > 0.0) \
+                                or (self.direction.x * zb - self.direction.z * xa < 0.0) \
+                                or (self.direction.y * za - self.direction.z * ya < 0.0) \
+                                or (self.direction.y * zb - self.direction.z * yb > 0.0):
+                            return False
+                        else:
+                            return True
+            else:
+                if self.direction.z < 0.0:
+                    # case PPM: side(R,FB) < 0 or side(R,HD) > 0 or side(R,AB) > 0 or side(R,HG) < 0 or side(R,GF) < 0 or side(R,DA) > 0 to miss
+                    if (self.origin.x > box.max.x) or (self.origin.y > box.max.y) or (self.origin.z < box.min.z):
+                        return False
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * yb - self.direction.y * xa < 0.0) \
+                                or (self.direction.x * ya - self.direction.y * xb > 0.0) \
+                                or (self.direction.x * za - self.direction.z * xa > 0.0) \
+                                or (self.direction.x * zb - self.direction.z * xb < 0.0) \
+                                or (self.direction.y * zb - self.direction.z * yb < 0.0) \
+                                or (self.direction.y * za - self.direction.z * ya > 0.0):
+                            return False
+                        else:
+                            return True
+                else:
+                    # case PPP: side(R,FB) < 0 or side(R,HD) > 0 or side(R,DC) > 0 or side(R,EF) < 0 or side(R,HE) < 0 or side(R,CB) > 0 to miss
+                    if (self.origin.x > box.max.x) or (self.origin.y > box.max.y) or (self.origin.z > box.max.z):
+                        return False
+                    else:
+                        xa = box.min.x - self.origin.x
+                        ya = box.min.y - self.origin.y
+                        za = box.min.z - self.origin.z
+                        xb = box.max.x - self.origin.x
+                        yb = box.max.y - self.origin.y
+                        zb = box.max.z - self.origin.z
+
+                        if (self.direction.x * yb - self.direction.y * xa < 0.0) \
+                                or (self.direction.x * ya - self.direction.y * xb > 0.0) \
+                                or (self.direction.x * za - self.direction.z * xb > 0.0) \
+                                or (self.direction.x * zb - self.direction.z * xa < 0.0) \
+                                or (self.direction.y * zb - self.direction.z * ya < 0.0) \
+                                or (self.direction.y * za - self.direction.z * yb > 0.0):
+                            return False
+                        else:
+                            return True
+        return False
+
+    def has_intersected_sphere(self, sphere):
+        """Determine whether the ray has intersected the bounding sphere."""
+        if not isinstance(sphere, BoundingSphere):
+            raise NotImplementedError
+
+        w = sphere.center - self.origin
+        wsq = Vector3.dot(w, w)
+        proj = Vector3.dot(w, self.direction)
+        rsq = sphere.radius * sphere.radius
+
+        # Early out: if sphere is behind the ray then there's no intersection.
+        if proj < 0.0 and wsq  > rsq:
+            return False
+        else:
+            vsq = Vector3.dot(self.direction, self.direction)
+
+            # Test length of difference vs. radius.
+            return vsq * wsq - proj * proj <= vsq * rsq
+
+    def has_intersected_plane(self, plane):
+        """Determine whether the ray has intersected the plane."""
+        if not isinstance(plane, Plane):
+            raise NotImplementedError
+
+        denominator = Vector3.dot(self.direction, plane.normal)
+
+        # Early out: if ray is parallel to the plane then no intersection.
+        if close_enough(abs(denominator), 0.0):
+            ray_origin_to_plane = plane.classify_point(self.origin)
+
+            # The ray lies in the plane if the ray origin is in the plane.
+            # In such a case there's an infinite number of intersection points.
+            return close_enough(ray_origin_to_plane, 0.0)
+        else:
+            # Ray isn't parallel to plane. That means there's an intersection.
+            t = -plane.classify_point(self.origin) / denominator
+
+            # Late out: rays and line segments are only defined for 't' >= 0.
+            return False if t < 0.0 else True
+
+    def get_intersection_with_plane(self, plane):
+        """
+        Determines whether the ray has intersected the plane and return the contact point.
+        A 3-element tuple is returned containing a boolean (if intersection has occurred),
+        the 't' value, and the intersection point as a Vector3.
+        """
+        if not isinstance(plane, Plane):
+            raise NotImplementedError
+
+        has_intersected = False
+        t = 0.0
+        intersection = Vector3(0.0, 0.0, 0.0)
+        denominator = Vector3.dot(self.direction, plane.normal)
+
+        # Early out: if ray is parallel to the plane then no intersection.
+        if close_enough(abs(denominator), 0.0):
+            ray_origin_to_plane = plane.classify_point(self.origin)
+
+            # The ray lies in the plane if the ray origin is in the plane.
+            # In such a case there's an infinite number of intersection points.
+            if close_enough(ray_origin_to_plane, 0.0):
+                t = 0.0
+                has_intersected = True
+            else:
+                has_intersected = False
+        else:
+            # Ray isn't parallel to plane. That means there's an intersection.
+            t = -plane.classify_point(self.origin) / denominator
+
+            # Late out: rays and line segments are only defined for 't' >= 0.
+            if t < 0.0:
+                has_intersected = False
+            else:
+                has_intersected = True
+                intersection = self.origin + (self.direction * t);
+
+        return (has_intersected, t, intersection)
