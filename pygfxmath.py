@@ -1957,7 +1957,7 @@ class Ray(object):
                 else:
                     # case MMP: side(R,HD) < 0 or side(R,FB) > 0 or side(R,HG) > 0 or side(R,AB) < 0 or side(R,DA) < 0 or side(R,GF) > 0 to miss
                     if (self.origin.x < box.min.x) or (self.origin.y < box.min.y) or (self.origin.z > box.max.z):
-                        return false;
+                        return False
                     else:
                         xa = box.min.x - self.origin.x
                         ya = box.min.y - self.origin.y
