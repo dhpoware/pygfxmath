@@ -530,7 +530,7 @@ class Matrix3(object):
 
     def from_axes(self, x_axis, y_axis, z_axis):
         """Create a rotation matrix from 3 basis vectors (x_axis, y_axis, and z_axis)."""
-        if not isinstance(x, Vector3) or not isinstance(y, Vector3) or not isinstance(z, Vector3):
+        if not isinstance(x_axis, Vector3) or not isinstance(y_axis, Vector3) or not isinstance(z_axis, Vector3):
             raise NotImplementedError
         self.mtx[0][0] = x_axis.x
         self.mtx[0][1] = x_axis.y
@@ -544,7 +544,7 @@ class Matrix3(object):
 
     def from_axes_transposed(self, x_axis, y_axis, z_axis):
         """Create a transposed rotation matrix from 3 basis vectors (x_axis, y_axis, and z_axis)."""
-        if not isinstance(x, Vector3) or not isinstance(y, Vector3) or not isinstance(z, Vector3):
+        if not isinstance(x_axis, Vector3) or not isinstance(y_axis, Vector3) or not isinstance(z_axis, Vector3):
             raise NotImplementedError
         self.mtx[0][0] = x_axis.x
         self.mtx[0][1] = y_axis.x
@@ -1023,7 +1023,7 @@ class Matrix4(object):
 
     def from_axes(self, x_axis, y_axis, z_axis):
         """Create a rotation matrix from 3 basis vectors (x_axis, y_axis, and z_axis)."""
-        if not isinstance(x, Vector4) or not isinstance(y, Vector4) or not isinstance(z, Vector4):
+        if not isinstance(x_axis, Vector4) or not isinstance(y_axis, Vector4) or not isinstance(z_axis, Vector4):
             raise NotImplementedError
         self.mtx[0][0] = x_axis.x
         self.mtx[0][1] = x_axis.y
@@ -1044,7 +1044,7 @@ class Matrix4(object):
 
     def from_axes_transposed(self, x_axis, y_axis, z_axis):
         """Create a transposed rotation matrix from 3 basis vectors (x_axis, y_axis, and z_axis)."""
-        if not isinstance(x, Vector4) or not isinstance(y, Vector4) or not isinstance(z, Vector4):
+        if not isinstance(x_axis, Vector4) or not isinstance(y_axis, Vector4) or not isinstance(z_axis, Vector4):
             raise NotImplementedError
         self.mtx[0][0] = x_axis.x
         self.mtx[0][1] = y_axis.x
